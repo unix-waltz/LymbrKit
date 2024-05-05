@@ -9,13 +9,14 @@ generator client {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
-  username String  @unique
-  fullname String?
-  address  String?
-  password String?
-  role     role    @default(USER)
+  id               Int     @id @default(autoincrement())
+  email            String  @unique
+  username         String  @unique
+  fullname         String?
+  address          String?
+  password         String?
+  DB_REFRESH_TOKEN String? @db.Text
+  role             role    @default(USER)
 }
 
 enum role {

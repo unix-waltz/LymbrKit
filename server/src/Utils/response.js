@@ -1,12 +1,12 @@
-const response = (
+const response = ({
     response,
     message,
     statuscode,
     success,
     data = [],
-    type= 'message',
-    token = null
-    )=>{
+    token = null,
+    type= 'message'
+})=>{
 return response.status(statuscode).json({
 succes:success,
 type: type,
