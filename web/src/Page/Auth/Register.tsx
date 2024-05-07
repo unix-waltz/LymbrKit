@@ -1,44 +1,42 @@
 
-import { Link } from 'react-router-dom';
-
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-
-
+import {useFormik} from 'formik'
+import Registerview from './Registerview';
+import * as yup from 'yup'
+import Api from '@/Config/Api/Api';
+import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 const Register = () => {
-
+  const navigate = useNavigate()
+  const [alerts,setAlert] = useState('');
+const {handleSubmit,values,handleChange,errors} = useFormik({
+    initialValues:{
+        email:'',
+        username:'',
+        password:''
+    },
+    onSubmit:async e=>{
+      const {email,username,password} = e
+      try {
+             const result = await Api.post('/auth/register',{
+        email:email,
+        username:username,
+        password:password
+      })
+      if(result.data.succes) return navigate('/login')
+      } catch (error:any) {
+      setAlert(error.response.data.massage)
+      }
+ 
+    },
+    validationSchema:yup.object({
+      email:yup.string().required('Email is Required').email('Must Be Email !'),
+      username:yup.string().required('Username is Required').min(6,'min 6 character'),
+      password:yup.string().required('Password is Required').min(8,'min 6 character'),
+    })
+})
 
   return (
-    <div className="flex items-center justify-center mt-[200px]">
-      <Card className="w-[350px]">
-        <CardHeader>
-          <CardTitle>Sign Up</CardTitle>
-          <CardDescription>Sign Up into your account.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form >
-            <div className="grid w-full items-center gap-4">
-              <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="username">Username</Label>
-                <Input id="username" name='username' placeholder="ex : username" />
-                <p className="text-red-500"></p>
-              </div>
-              <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" name='email' placeholder="ex : email@example.com" />
-                <p className="text-red-500"></p>
-              </div>
-            </div>
-          </form>
-        </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button variant="outline"><Link to='/'>Cancel</Link></Button>
-          <Button type="submit">Sign Up</Button>
-        </CardFooter>
-      </Card>
-    </div>
+    <Registerview {...{alerts,handleSubmit,values,handleChange,errors}} />
   );
 }
 
