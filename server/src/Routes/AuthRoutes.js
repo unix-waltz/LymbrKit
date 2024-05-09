@@ -4,4 +4,5 @@ import authController from "../Controllers/authContoller.js";
 const Auth = Router()
 Auth.post('/register',authMiddleware.isNotAuth,authController.Register)
 Auth.post('/login',authMiddleware.isNotAuth,authController.Login)
+Auth.post('/login',authMiddleware.isAuth('none'),authController.Logout)
 export default Auth

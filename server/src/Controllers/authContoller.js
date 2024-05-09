@@ -92,7 +92,7 @@ if(!validpasssword) return response({
     statuscode:403,
     success:false
 })
-const refreshToken = jwtSign({
+const {accessToken,refreshToken} = jwtSign({
            id: user.id,
            username : user.username,
            email: user.email,
@@ -104,19 +104,13 @@ const refreshToken = jwtSign({
             data:{DB_REFRESH_TOKEN:refreshToken}
         })
        setCookie(res,refreshToken)
-const token = jwtSign({
-        id: user.id,
-        username : user.username,
-        email: user.email,
-        fullname:user.fullname,
-        role:user.role
-     },'access')
+
 return response({
     response:res,
     message:`Login Success!`,
     statuscode:200,
     success:true,
-    token :token,
+    token :accessToken,
 })
 
 } catch (error) {
@@ -126,6 +120,96 @@ return response({
         statuscode:500,
         success:false
     })
+}
+},
+Logout : async (req,res)=>{
+try {
+    const cookieToken = req.cookies?.refreshToken
+if(cookieToken){
+    const loggeduser = await prisma.user.findUnique({where:{DB_REFRESH_TOKEN:cookieToken}})
+if(loggeduser){
+   await prisma.user.update({where:{id:loggeduser.id},data:{DB_REFRESH_TOKEN:null}})
+}
+}
+res.clearCookie("refreshToken")
+response({
+    response:res,
+    message:`No Content!`,
+    statuscode:204,
+    success:true,
+})
+} catch (error) {
+    return response({
+        response:res,
+        message:`internal server error : ${error}`,
+        statuscode:500,
+        success:false
+    })   
+}
+},
+Refresh : async (req,res)=>{
+try {
+const cookieToken = req.cookies?.refreshToken
+    if(!cookieToken) return response({
+        response:res,
+        message:`Unauthorized`,
+        statuscode:401,
+        success:false
+    });
+const loggeduser = await prisma.user.findUnique({where:{DB_REFRESH_TOKEN:cookieToken}})
+
+// reuse token
+if (!loggeduser) {
+    jwt.verify(cookieToken, process.env.JSON_REFRESH_TOKEN, async (err, decoded) => {
+      if (err) {
+        return response({
+            response:res,
+            message:`Forbiden!`,
+            statuscode:403,
+            success:false
+        }) 
+      }
+      const decodedId = decoded.userId;
+      const hackedUser = await prisma.user.findUnique({where:{id:decodedId}});
+      if (hackedUser) {
+        await prisma.user.update({where:{id:hackedUser.id},data:{DB_REFRESH_TOKEN:null}})
+      }
+    });
+    return response({
+        response:res,
+        message:`Forbiden!`,
+        statuscode:403,
+        success:false
+    }) 
+  }
+// resend cookie 
+const {accessToken,refreshToken} = jwtSign({
+    id: loggeduser.id,
+    username : loggeduser.username,
+    email: loggeduser.email,
+    fullname:loggeduser.fullname,
+    role:loggeduser.role
+ })
+ await prisma.user.update({
+     where: {id:loggeduser.id},
+     data:{DB_REFRESH_TOKEN:refreshToken}
+ })
+res.clearCookie("refreshToken")
+setCookie(res,refreshToken)
+return response({
+    response:res,
+    message:`success!`,
+    statuscode:200,
+    success:true,
+    token :accessToken,
+})
+} catch (error) {
+    return response({
+        response:res,
+        message:`internal server error : ${error}`,
+        statuscode:500,
+        success:false
+    }) 
 }
 }
 }
