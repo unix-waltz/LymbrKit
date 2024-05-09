@@ -1,11 +1,10 @@
-
+import { useToast } from "@/components/ui/use-toast"
 import {useFormik} from 'formik'
 import Loginview from './Loginview';
 import * as yup from 'yup'
 import Api from '@/Config/Api/Api';
-import { useState } from 'react';
 const Login = () => {
-  const [alerts,setAlert] = useState('');
+  const { toast } = useToast()
 const {handleSubmit,values,handleChange,errors} = useFormik({
     initialValues:{
         email:'',
@@ -20,9 +19,18 @@ const {handleSubmit,values,handleChange,errors} = useFormik({
       }, {
         withCredentials: true
       })
-      console.log(result.data)
+      // console.log(result.data);
+
+        toast({
+          title: `${result.data.massage}`,
+          description: "Your Login Session Seccesfully!",
+        })
+ 
       } catch (error:any) {
-      setAlert(error.response.data.massage)
+      toast({
+        title: `${error.response.data.massage}`,
+        description: "Your Login Session Failed!",
+      })
       }
  
     },
@@ -33,7 +41,7 @@ const {handleSubmit,values,handleChange,errors} = useFormik({
 })
 
   return (
-    <Loginview {...{alerts,handleSubmit,values,handleChange,errors}} />
+    <Loginview {...{handleSubmit,values,handleChange,errors}} />
   );
 }
 

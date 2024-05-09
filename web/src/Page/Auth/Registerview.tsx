@@ -3,10 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-const Registerview = ({alerts,handleSubmit,handleChange,values,errors}:any) => {
+import { Toaster } from '@/components/ui/toaster';
+const Registerview = ({handleSubmit,handleChange,values,errors}:any) => {
   return (
+    <>
     <div className="flex items-center justify-center mt-[200px]">
-    {alerts && alerts}
     <Card className="w-[350px]">
       <CardHeader>
         <CardTitle>Sign Up</CardTitle>
@@ -42,7 +43,9 @@ const Registerview = ({alerts,handleSubmit,handleChange,values,errors}:any) => {
       
     </Card>
   </div>
-  )
+  <Toaster/>
+  </>
+    )
 }
 
 export default Registerview

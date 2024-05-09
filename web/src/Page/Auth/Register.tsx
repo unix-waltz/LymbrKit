@@ -4,10 +4,10 @@ import Registerview from './Registerview';
 import * as yup from 'yup'
 import Api from '@/Config/Api/Api';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useToast } from '@/components/ui/use-toast';
 const Register = () => {
+  const {toast} = useToast()
   const navigate = useNavigate()
-  const [alerts,setAlert] = useState('');
 const {handleSubmit,values,handleChange,errors} = useFormik({
     initialValues:{
         email:'',
@@ -24,19 +24,23 @@ const {handleSubmit,values,handleChange,errors} = useFormik({
       })
       if(result.data.succes) return navigate('/login')
       } catch (error:any) {
-      setAlert(error.response.data.massage)
+console.log(error.response.data.massage);
+        toast({
+          title: `${error.response.data.massage}`,
+          description: "Your Register Failed!",
+        })
       }
  
     },
     validationSchema:yup.object({
       email:yup.string().required('Email is Required').email('Must Be Email !'),
       username:yup.string().required('Username is Required').min(6,'min 6 character'),
-      password:yup.string().required('Password is Required').min(8,'min 6 character'),
+      password:yup.string().required('Password is Required').min(8,'min 8 character'),
     })
 })
 
   return (
-    <Registerview {...{alerts,handleSubmit,values,handleChange,errors}} />
+    <Registerview {...{handleSubmit,values,handleChange,errors}} />
   );
 }
 
