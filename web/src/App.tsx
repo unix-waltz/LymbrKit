@@ -1,16 +1,17 @@
-import { Route,Routes,BrowserRouter } from "react-router-dom"
-import { lazy } from "react"
-import Home from "./Page/Home"
-const Login = lazy(()=> import("@/Page/Auth/Login")) 
-const Register = lazy(()=> import("@/Page/Auth/Register")) 
+import { Routes,BrowserRouter } from "react-router-dom"
+import { Provider } from "react-redux"
+import PublicRoutes from "./Routes/PublicRoutes"
+import AuthRoutes from "./Routes/AuthRoutes"
+import Store from "./Config/Redux/Store"
 const App = () => {
   return (
    <BrowserRouter>
+   <Provider store={Store}>
    <Routes>
-    <Route path='/' element={<Home/>}/>
-    <Route path='/login' element={<Login/>}/>
-    <Route path='/register' element={<Register/>}/>
+<AuthRoutes />
+<PublicRoutes />
    </Routes>
+   </Provider>
    </BrowserRouter>
   )
 }
